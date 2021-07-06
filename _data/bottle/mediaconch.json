@@ -42,6 +42,9 @@
         },
         "high_sierra": {
           "url": "https://ghcr.io/v2/homebrew/core/jansson/blobs/sha256:38085c147eb40d58df8a91a44e7544d4ceb248aa25f54bdd8a3b10c1a214d9e9"
+        },
+        "x86_64_linux": {
+          "url": "https://ghcr.io/v2/homebrew/core/jansson/blobs/sha256:68f0ccce7120f3a62dec4886fa286cab0bda3a126608f707cf1732662442c1a0"
         }
       }
     },
@@ -86,6 +89,9 @@
         },
         "high_sierra": {
           "url": "https://ghcr.io/v2/homebrew/core/libevent/blobs/sha256:bad1dc570cc96e2ed5654159d3dd382d94fbbda00ca26e6f5a5ddd7ce6cb6ed9"
+        },
+        "x86_64_linux": {
+          "url": "https://ghcr.io/v2/homebrew/core/libevent/blobs/sha256:08f595173b3e517a94919784e0a2378cdb17c94276d7382203eb7b54322798a7"
         }
       }
     },

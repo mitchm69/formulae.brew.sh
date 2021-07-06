@@ -228,6 +228,9 @@
         },
         "mojave": {
           "url": "https://ghcr.io/v2/homebrew/core/python-tabulate/blobs/sha256:3d9e98f92133a5c058618584b0178645eafb0230531fbef665d3ed2546f63f0f"
+        },
+        "x86_64_linux": {
+          "url": "https://ghcr.io/v2/homebrew/core/python-tabulate/blobs/sha256:f5bd465f5fd9a0e3eb107c4cdd244b63090a2ce102346f7d7fecfcdbabc1812a"
         }
       }
     },
@@ -269,6 +272,9 @@
         },
         "mojave": {
           "url": "https://ghcr.io/v2/homebrew/core/boost/blobs/sha256:1b45c1009cef2b67b2ec21f86e0ff743f2efdbcb5af510067cba3587d44967cb"
+        },
+        "x86_64_linux": {
+          "url": "https://ghcr.io/v2/homebrew/core/boost/blobs/sha256:6203e3d6ae16a3e71d79ad67763a59733e84457253c1d44b01a15a72623b8a95"
         }
       }
     },

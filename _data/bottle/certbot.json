@@ -61,6 +61,9 @@
         },
         "sierra": {
           "url": "https://ghcr.io/v2/homebrew/core/augeas/blobs/sha256:55b3fab93f2ec4a703dc2bb3b3d58c47375456bdb5f0308e0856b231d309c02d"
+        },
+        "x86_64_linux": {
+          "url": "https://ghcr.io/v2/homebrew/core/augeas/blobs/sha256:6d95bdecb26786ee6aaaae8fe49ce90d91a10782d9c6f55d6b2de37d4b5e8aea"
         }
       }
     },
@@ -80,6 +83,9 @@
         },
         "mojave": {
           "url": "https://ghcr.io/v2/homebrew/core/dialog/blobs/sha256:c05946dd7b57aa11f42ccccd0aab7c9b1506e8093c9dcc60588046aadd4b15dd"
+        },
+        "x86_64_linux": {
+          "url": "https://ghcr.io/v2/homebrew/core/dialog/blobs/sha256:b2e3820b717ffdec0e6fe7fce8da31784263ebac9ecd49713677dccf5cc5446b"
         }
       }
     },

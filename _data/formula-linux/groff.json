@@ -66,8 +66,8 @@
   ],
   "build_dependencies": [
     "pkg-config",
-    "texinfo",
-    "bison"
+    "bison",
+    "texinfo"
   ],
   "dependencies": [
     "ghostscript",

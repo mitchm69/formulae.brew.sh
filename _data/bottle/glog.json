@@ -14,6 +14,9 @@
     },
     "mojave": {
       "url": "https://ghcr.io/v2/homebrew/core/glog/blobs/sha256:8d66cd6d6e718969aa23d9c1fbf442fdb0da2824d40259aae5905074e838507d"
+    },
+    "x86_64_linux": {
+      "url": "https://ghcr.io/v2/homebrew/core/glog/blobs/sha256:31f07fd607f6b830eea772f50e07ef512ec98b2e8a74f270f0898217d56b23e1"
     }
   },
   "dependencies": [
@@ -39,6 +42,9 @@
         },
         "sierra": {
           "url": "https://ghcr.io/v2/homebrew/core/gflags/blobs/sha256:6f06466ca55f2174daecbc935e0bca1f2aed9bfb94a92f21d52fb4db1e07cd4a"
+        },
+        "x86_64_linux": {
+          "url": "https://ghcr.io/v2/homebrew/core/gflags/blobs/sha256:abf5d21a3d9ebed989bc047eec0c14b0b22a53ca0f1140149e158a89cd06a31f"
         }
       }
     }

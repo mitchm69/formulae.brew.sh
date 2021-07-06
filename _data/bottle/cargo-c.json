@@ -14,6 +14,9 @@
     },
     "mojave": {
       "url": "https://ghcr.io/v2/homebrew/core/cargo-c/blobs/sha256:c9015ac00b4910478ff20ac2f5ed7790dc24afa14c64b72e32351c4f9c617fc2"
+    },
+    "x86_64_linux": {
+      "url": "https://ghcr.io/v2/homebrew/core/cargo-c/blobs/sha256:0abc904deecc38b19fb7a4fc9fccd005c951ff43d666af39d9d30c08f8238950"
     }
   },
   "dependencies": [
@@ -83,6 +86,9 @@
         },
         "mojave": {
           "url": "https://ghcr.io/v2/homebrew/core/libgit2/blobs/sha256:f8c6f89c82c013531e7355d79643dff7c7bf658bedaa9ff3fdfa44ee440b2abe"
+        },
+        "x86_64_linux": {
+          "url": "https://ghcr.io/v2/homebrew/core/libgit2/blobs/sha256:06a55904d78e73ea93567d825fbca98102abb496cfcbeb05bfc1a464672bdf53"
         }
       }
     }

@@ -17,6 +17,9 @@
     },
     "high_sierra": {
       "url": "https://ghcr.io/v2/homebrew/core/libgsf/blobs/sha256:c2cb9985014c2c727abe935f113ab827e5a7af1e4376c27261897381fc87a2ba"
+    },
+    "x86_64_linux": {
+      "url": "https://ghcr.io/v2/homebrew/core/libgsf/blobs/sha256:8b124567389a546101a177fb6d53322316102ae8192fb47f0c4011652f116dbb"
     }
   },
   "dependencies": [
@@ -262,6 +265,9 @@
         },
         "mojave": {
           "url": "https://ghcr.io/v2/homebrew/core/glib/blobs/sha256:cf7cc5466d575b0c1a8c336770d0105c2624cbdb4a33716761b122b0a640cbe2"
+        },
+        "x86_64_linux": {
+          "url": "https://ghcr.io/v2/homebrew/core/glib/blobs/sha256:567a626270cda5d42994db048756571d28a3622e57a100455bb21044d65870b7"
         }
       }
     }

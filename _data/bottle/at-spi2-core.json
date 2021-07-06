@@ -3,6 +3,9 @@
   "pkg_version": "2.36.1_3",
   "rebuild": 0,
   "bottles": {
+    "x86_64_linux": {
+      "url": "https://ghcr.io/v2/homebrew/core/at-spi2-core/blobs/sha256:d57d7476be517b391bea8fbadfd5b9cc54f37b32c2ceeb0e01704420edc0be47"
+    }
   },
   "dependencies": [
     {
@@ -24,6 +27,9 @@
         },
         "high_sierra": {
           "url": "https://ghcr.io/v2/homebrew/core/dbus/blobs/sha256:6c98efff3cb8fdbba552351a2953f85953f053e12a8af891461118d37affdb73"
+        },
+        "x86_64_linux": {
+          "url": "https://ghcr.io/v2/homebrew/core/dbus/blobs/sha256:21857954e349d0ff49abec1ed39f574cb7c2dce10587a085030c30a8cf98cabc"
         }
       }
     },
@@ -269,6 +275,9 @@
         },
         "mojave": {
           "url": "https://ghcr.io/v2/homebrew/core/glib/blobs/sha256:cf7cc5466d575b0c1a8c336770d0105c2624cbdb4a33716761b122b0a640cbe2"
+        },
+        "x86_64_linux": {
+          "url": "https://ghcr.io/v2/homebrew/core/glib/blobs/sha256:567a626270cda5d42994db048756571d28a3622e57a100455bb21044d65870b7"
         }
       }
     },

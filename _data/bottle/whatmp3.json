@@ -36,6 +36,9 @@
         },
         "mojave": {
           "url": "https://ghcr.io/v2/homebrew/core/libogg/blobs/sha256:f416f50ef34e470f690e27f3c29f65d6fe5b1aec56f16a2a312ba6011e809720"
+        },
+        "x86_64_linux": {
+          "url": "https://ghcr.io/v2/homebrew/core/libogg/blobs/sha256:db517cc6e922b1d3a7c845bad5dd4c78d48b170aa94187d6281f8577f228a180"
         }
       }
     },
@@ -86,6 +89,9 @@
         },
         "el_capitan": {
           "url": "https://ghcr.io/v2/homebrew/core/lame/blobs/sha256:73c4d677b4e5357dc5baf30c96ac5f33cf7902e9c77869834b7cd9d17f3415bc"
+        },
+        "x86_64_linux": {
+          "url": "https://ghcr.io/v2/homebrew/core/lame/blobs/sha256:ee8318f10b1b986d57826f0f59800c43f62d58e8d52cf9c94b8924e28739e656"
         }
       }
     },

@@ -30,6 +30,9 @@
         },
         "mojave": {
           "url": "https://ghcr.io/v2/homebrew/core/bash/blobs/sha256:ecb50a94d925314cc09f4e5f016538143edeba3b3fb7235397286b97cc016e14"
+        },
+        "x86_64_linux": {
+          "url": "https://ghcr.io/v2/homebrew/core/bash/blobs/sha256:b81e0a2f8cd9aa8f742926742a462fa57ee8aceafc5492fa5fefc96394d44041"
         }
       }
     },
@@ -49,6 +52,9 @@
         },
         "mojave": {
           "url": "https://ghcr.io/v2/homebrew/core/coreutils/blobs/sha256:10fbad2e35846c7e835cb979b5beb9edf07f3a9742ddcc3c28d9abd5fe9ccb1b"
+        },
+        "x86_64_linux": {
+          "url": "https://ghcr.io/v2/homebrew/core/coreutils/blobs/sha256:6d0ddc3ead1b8259a9a97b7bc9cc891cbc5a236a82afd51f224de16affea0b54"
         }
       }
     },
@@ -124,6 +130,9 @@
         },
         "high_sierra": {
           "url": "https://ghcr.io/v2/homebrew/core/giflib/blobs/sha256:e1a30a20ad93cd9ec003027d7fba43a7e04ced0bff4156614818cccfc9dec6c9"
+        },
+        "x86_64_linux": {
+          "url": "https://ghcr.io/v2/homebrew/core/giflib/blobs/sha256:d753208ed3a4bbd60b59e3ca4466196e4b935d4f434935b540fc6bfb5f3e0385"
         }
       }
     },
@@ -595,6 +604,9 @@
         },
         "mojave": {
           "url": "https://ghcr.io/v2/homebrew/core/recode/blobs/sha256:27ba44840e12f588f741d2a7477ac8e6c6d3df22b09b426c617c87b98518d5c8"
+        },
+        "x86_64_linux": {
+          "url": "https://ghcr.io/v2/homebrew/core/recode/blobs/sha256:4eaa20bd35e3d6937e2c8fa962572eda4998ef7504049b9592a62b3f133c1edd"
         }
       }
     },
@@ -614,6 +626,9 @@
         },
         "mojave": {
           "url": "https://ghcr.io/v2/homebrew/core/nspr/blobs/sha256:fd4bc5953ceff865f0a3e049fbb06ccb07015c4369a7aa4c67e820af6b7cc53b"
+        },
+        "x86_64_linux": {
+          "url": "https://ghcr.io/v2/homebrew/core/nspr/blobs/sha256:e96c1aec46c06a8fb7644697cc962e75278a325e17d39622163b51bdb003d850"
         }
       }
     },

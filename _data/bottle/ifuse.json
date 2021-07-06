@@ -256,6 +256,9 @@
         },
         "mojave": {
           "url": "https://ghcr.io/v2/homebrew/core/glib/blobs/sha256:cf7cc5466d575b0c1a8c336770d0105c2624cbdb4a33716761b122b0a640cbe2"
+        },
+        "x86_64_linux": {
+          "url": "https://ghcr.io/v2/homebrew/core/glib/blobs/sha256:567a626270cda5d42994db048756571d28a3622e57a100455bb21044d65870b7"
         }
       }
     },
@@ -297,6 +300,9 @@
         },
         "mojave": {
           "url": "https://ghcr.io/v2/homebrew/core/libtasn1/blobs/sha256:73201deae5a10cd4b4125b4a7c811f48ed861cd6fe2f82d69fed6003115d7bef"
+        },
+        "x86_64_linux": {
+          "url": "https://ghcr.io/v2/homebrew/core/libtasn1/blobs/sha256:ac4599c1f1a9b4858cbf688524cbdec6c412004b447102c034662781e0d96481"
         }
       }
     },
