@@ -4,14 +4,18 @@ SAMPLES = {
   analytics_cask_install_homebrew_cask_30d: "analytics/cask-install/homebrew-cask/30d.json",
   analytics_install_30d:                    "analytics/install/30d.json",
   analytics_install_homebrew_core_30d:      "analytics/install/homebrew-core/30d.json",
-  bottle_wget:                              "bottle/wget.json",
   cask_docker:                              "cask/docker.json",
-  cask_source_vagrant:                      "cask-source/vagrant.rb",
   formula_wget:                             "formula/wget.json",
   formula:                                  "formula.json",
-  versions_casks:                           "versions-casks.json",
-  versions_formulae:                        "versions-formulae.json",
 }.freeze
+
+def failed!
+  @failed ||= true
+end
+
+def failed?
+  @failed
+end
 
 def generate_api_samples
   includes_dir = "_includes/api-samples"
@@ -19,20 +23,26 @@ def generate_api_samples
   FileUtils.rm_rf includes_dir
   FileUtils.mkdir_p includes_dir
 
-  SAMPLES.each do |name, api_url|
-    contents = if File.extname(api_url) == ".json"
-      format_json_contents name, api_url
+  SAMPLES.each do |name, api_path|
+    contents = if File.extname(api_path) == ".json"
+      format_json_contents name, api_path
     else
-      codify curl_output(api_url), language: "rb"
+      codify curl_output(api_path), language: "rb"
     end
 
     IO.write "#{includes_dir}/#{name}.md", contents
   end
 end
 
-def curl_output(api_url)
-  out, err, status = Open3.capture3("curl", "--silent", "--show-error", "--fail", "https://formulae.brew.sh/api/#{api_url}")
-  raise "Error fetching #{api_url}: #{err}" unless status.success?
+def curl_output(api_path)
+  api_url = "https://formulae.brew.sh/api/#{api_path}"
+  out, err, status = Open3.capture3("curl", "--silent", "--show-error", "--fail", api_url)
+  unless status.success?
+    warn "Error fetching #{api_url}: #{err}"
+    # Return something JSON.parse can handle and we'll warn later.
+    failed!
+    return "{}"
+  end
 
   out.strip
 end
@@ -41,8 +51,27 @@ def codify(contents, language:)
   "```#{language}\n#{contents}\n```"
 end
 
-def format_json_contents(name, api_url)
-  contents = JSON.parse curl_output(api_url)
+def format_json_contents(name, api_path)
+  contents = JSON.parse curl_output(api_path)
+
+  # TODO: remove when passing
+  if contents.nil?
+    warn "Skipping nil #{api_path}"
+    failed!
+    return
+  end
+
+  if contents.blank?
+    warn "Skipping blank #{api_path}"
+    failed!
+    return
+  end
+
+  if contents == 'null'
+    warn "Skipping null #{api_path}"
+    failed!
+    return
+  end
 
   # Only include a select group of items to reduce the length of the sample
   case name
@@ -61,14 +90,6 @@ def format_json_contents(name, api_url)
   when :formula
     contents.select! do |obj|
       obj["name"] == "wget"
-    end
-  when :versions_casks
-    contents.select! do |cask_token, _|
-      %w[docker onyx].include? cask_token
-    end
-  when :versions_formulae
-    contents.select! do |formula_name, _|
-      %w[wget zsh].include? formula_name
     end
   end
 
@@ -94,13 +115,11 @@ def format_json_contents(name, api_url)
   when :formula
     contents.sub!(/^\[/, "[\n  ...")
     contents.sub!(/}(?=\n\])/, "},\n  ...")
-  when :versions_casks, :versions_formulae
-    contents.sub!(/^{/, "{\n  ...")
-    contents.sub!(/(  },)(?=\n  ")/, "\\1\n  ...")
-    contents.sub!(/}(?=\n})/, "},\n  ...")
   end
 
   codify contents, language: "json"
 end
 
 generate_api_samples
+
+abort if failed?

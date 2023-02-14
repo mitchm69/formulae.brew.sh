@@ -6,3 +6,12 @@ vendor/
 .jekyll-metadata
 .homebrew_analytics.json
 .sass-cache/
+Gemfile.lock
+_data/
+api/cask/
+api/formula/
+api/analytics/
+api/analytics-linux/
+_includes/api-samples/
+cask/
+formula/

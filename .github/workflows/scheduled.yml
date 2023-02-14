@@ -6,18 +6,17 @@ on:
   schedule:
     # Once every hour
     - cron: "0 * * * *"
+  workflow_dispatch:
 
 concurrency:
-  group: scheduled
+  group: scheduled-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  generate:
+  generate-cask:
     if: startsWith( github.repository, 'Homebrew/' )
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macOS-latest, ubuntu-latest]
+    name: Generate homebrew/cask data, pages and API
+    runs-on: macos-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@main
@@ -29,23 +28,61 @@ jobs:
         id: set-up-homebrew
         uses: Homebrew/actions/setup-homebrew@master
 
-      - name: Set up dependency stubs
-        if: matrix.os == 'ubuntu-latest'
+      - name: Update data for homebrew/cask
         run: |
-          # create stubs so build dependencies aren't incorrectly flagged as missing
-          for i in python svn unzip xz
-          do
-            sudo touch /usr/bin/$i
-            sudo chmod +x /usr/bin/$i
-          done
+          brew update-reset $(brew --repository homebrew/cask)
+          /usr/bin/rake cask
 
-      - name: Configure Git user
-        uses: Homebrew/actions/git-user-config@master
+      - name: Archive data
+        run: tar czvf data-cask.tar.gz _data/cask/ api/cask/ cask/
+
+      - uses: actions/upload-artifact@v3
         with:
-          username: BrewTestBot
+          name: data-cask
+          path: data-cask.tar.gz
+          retention-days: 1
+  generate-core:
+    if: startsWith( github.repository, 'Homebrew/' )
+    name: Generate homebrew/core data, pages and API
+    runs-on: macos-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@main
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
+      - name: Update data for homebrew/core
+        run: /usr/bin/rake formulae
+
+      - name: Archive data
+        run: tar czvf data-core.tar.gz _data/formula/ _data/formula_canonical.json api/formula/ formula/
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: data-core
+          path: data-core.tar.gz
+          retention-days: 1
+  generate-analytics:
+    if: startsWith( github.repository, 'Homebrew/' )
+    name: Generate analytics data
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@main
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@master
 
       - name: Set up Ruby
-        if: matrix.os == 'ubuntu-latest'
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: "2.6"
@@ -55,42 +92,154 @@ jobs:
           ANALYTICS_JSON_KEY: ${{ secrets.HOMEBREW_FORMULAE_BREW_SH_ANALYTICS_JSON_KEY }}
         run: echo "$ANALYTICS_JSON_KEY" > ~/.homebrew_analytics.json
 
-      - name: Update data for homebrew/core and homebrew/cask
-        if: matrix.os == 'macOS-latest'
+      - name: Update analytics data
+        run: rake all_analytics
+
+      - name: Archive data
+        run: tar czvf data-analytics.tar.gz _data/analytics _data/analytics-linux api/analytics api/analytics-linux
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: data-analytics
+          path: data-analytics.tar.gz
+          retention-days: 1
+  generate-samples:
+    if: startsWith( github.repository, 'Homebrew/' )
+    name: Generate API samples
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@main
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "2.6"
+
+      - name: Update data for api samples
+        run: rake api_samples
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: api-samples
+          path: _includes/api-samples/
+          retention-days: 1
+  build:
+    needs: [generate-cask, generate-core, generate-analytics, generate-samples]
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Set up Git repository
+        uses: actions/checkout@master
+
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "2.6"
+          bundler-cache: true
+
+      - uses: actions/download-artifact@v3
+
+      - name: Move artifacts into place
         run: |
-          /usr/bin/rake
+          tar xvf data-analytics/data-analytics.tar.gz
+          tar xvf data-cask/data-cask.tar.gz
+          tar xvf data-core/data-core.tar.gz
+          mv -v api-samples _includes/api-samples
 
-          brew update-reset $(brew --repository homebrew/cask)
-          /usr/bin/rake cask
+      - name: Build site
+        run: bundle exec rake build
 
-          /usr/bin/rake api_samples
+      - name: Validate build
+        run: ./script/validate-build.rb
 
-          git reset origin/master
-          git add _data/formula{,_canonical.json} _data/bottle api/formula api/bottle formula
-          if ! git diff --no-patch --exit-code HEAD -- _data/analytics _data/formula{,_canonical.json} _data/bottle api/formula api/bottle formula cask; then
-            git commit -m "formula: updates from homebrew/core" _data/analytics _data/formula{,_canonical.json} _data/bottle api/formula api/bottle formula cask
-          fi
-
-          git add _data/cask api/cask api/cask-source cask
-          if ! git diff --no-patch --exit-code HEAD -- _data/cask api/cask api/cask-source cask; then
-            git commit -m "cask: updates from homebrew/cask" _data/cask api/cask api/cask-source cask
-          fi
-
-          git add _includes/api-samples
-          if ! git diff --no-patch --exit-code HEAD -- _includes/api-samples; then
-            git commit -m "docs: update API samples" _includes/api-samples
-          fi
-
-      - name: Update analytics data for Homebrew/linuxbrew-core
-        if: matrix.os == 'ubuntu-latest'
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+  deploy:
+    needs: build
+    if: ${{ github.ref_name == 'master' }}
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      deploy_url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
+  deploy-issue:
+    name: Open/close deploy issues
+    needs:
+      [
+        generate-cask,
+        generate-core,
+        generate-analytics,
+        generate-samples,
+        build,
+        deploy,
+      ]
+    if: ${{ always() && github.ref_name == 'master' }}
+    env:
+      GH_TOKEN: ${{ secrets.HOMEBREW_GITHUB_PUBLIC_REPO_TOKEN }}
+      REPO: ${{ github.repository }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find existing deploy failure issue
         run: |
-          rake linux_analytics
-
-          git reset origin/master
-          git add _data/analytics-linux
-          if ! git diff --no-patch --exit-code HEAD -- _data/analytics-linux; then
-            git commit -m "analytics-linux: Updates from Linuxbrew's GA" _data/analytics-linux
+          EXISTING_ISSUE=$(gh issue list --repo "$REPO" --author BrewTestBot --label 'deploy failure' | awk '{print $1}')
+          echo "EXISTING_ISSUE=$EXISTING_ISSUE" >> $GITHUB_ENV
+          echo "WORKFLOW_URL=https://github.com/Homebrew/formulae.brew.sh/actions/runs/$RUN_ID" >> $GITHUB_ENV
+        env:
+          RUN_ID: ${{ github.run_id }}
+      - name: Report deploy failure
+        if: ${{ contains(needs.*.result, 'failure') }}
+        run: |
+          ISSUE_TITLE="formulae.brew.sh deployment failed!"
+          ISSUE_BODY="The most recent [formulae.brew.sh deployment failed]($WORKFLOW_URL)."
+          if [ -n "$EXISTING_ISSUE" ]; then
+            gh issue edit "$EXISTING_ISSUE" --repo "$REPO" --body "$(echo -e "$ISSUE_BODY")"
+          else
+            gh issue create --repo "$REPO" --title "$ISSUE_TITLE" --label "deploy failure" --body "$(echo -e "$ISSUE_BODY")"
+          fi
+      - name: Report deploy success
+        if: ${{ needs.deploy.result == 'success' }}
+        run: |
+          COMMENT_BODY="The most recent [formulae.brew.sh deployment succeeded]($WORKFLOW_URL). Closing issue."
+          if [ -n "$EXISTING_ISSUE" ]; then
+            gh issue comment "$EXISTING_ISSUE" --repo "$REPO" --body "$(echo -e "$COMMENT_BODY")"
+            gh issue close "$EXISTING_ISSUE" --repo "$REPO"
           fi
 
-      - name: Push commits
-        uses: Homebrew/actions/git-try-push@master
+  # This is run on a schedule by Algolia too so we don't care about failures.
+  algolia_recrawl:
+    needs: deploy
+    name: Algolia Recrawl
+    runs-on: ubuntu-latest
+    steps:
+      - name: Algolia crawler creation and recrawl
+        uses: algolia/algoliasearch-crawler-github-actions@v1
+        continue-on-error: true
+        id: crawler_push
+        with:
+          crawler-name: Homebrew Search (https://*brew.sh)
+          site-url: ${{ needs.deploy.outputs.deploy_url }}
+          crawler-user-id: ${{ secrets.CRAWLER_USER_ID }}
+          crawler-api-key: ${{ secrets.CRAWLER_API_KEY }}
+          algolia-app-id: ${{ secrets.ALGOLIA_APP_ID }}
+          algolia-api-key: ${{ secrets.ALGOLIA_API_KEY }}
+      - name: Unconditional success step
+        run: true

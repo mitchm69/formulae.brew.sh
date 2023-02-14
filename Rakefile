@@ -12,21 +12,21 @@ end
 task default: :formula_and_analytics
 
 desc "Dump macOS formulae data"
-task :formulae, [:os, :tap] do |task, args|
-  args.with_defaults(:os => "mac", :tap => jekyll_config("taps", "core", "name"))
+task :formulae, [:tap] do |task, args|
+  args.with_defaults(:tap => jekyll_config("taps", "core", "name"))
 
-  ENV["HOMEBREW_FORCE_HOMEBREW_ON_LINUX"] = "1" if args[:os] == "mac"
   ENV["HOMEBREW_NO_COLOR"] = "1"
-  sh "brew", "ruby", "script/generate.rb", args[:os], args[:tap]
+  ENV["HOMEBREW_NO_INSTALL_FROM_API"] = "1"
+  sh "brew", "ruby", "script/generate.rb", args[:tap]
 end
-CLOBBER.include FileList[%w[_data/formula _data/formula_canonical.json api/formula formula]]
+CLOBBER.include FileList[%w[_data/formula api/formula formula _data/formula_canonical.json]]
 
 desc "Dump cask data"
 task :cask, [:tap] do |task, args|
   args.with_defaults(:tap => jekyll_config("taps", "cask", "name"))
 
-  ENV["HOMEBREW_FORCE_HOMEBREW_ON_LINUX"] = "1"
   ENV["HOMEBREW_NO_COLOR"] = "1"
+  ENV["HOMEBREW_NO_INSTALL_FROM_API"] = "1"
   sh "brew", "ruby", "script/generate-cask.rb", args[:tap]
 end
 CLOBBER.include FileList[%w[_data/cask api/cask cask]]
@@ -68,11 +68,13 @@ end
 
 def generate_analytics_files(os)
   analytics_data_path = "_data/analytics"
+  analytics_api_path = "api/analytics"
   core_tap_name = "homebrew-core"
   formula_analytics_os_arg = nil
 
   if os == "linux"
     analytics_data_path = "_data/analytics-linux"
+    analytics_api_path = "api/analytics-linux"
     formula_analytics_os_arg = "--linux"
   end
 
@@ -86,23 +88,28 @@ def generate_analytics_files(os)
     case category
     when "core-build-error"
       category = "all-core-formulae-json --build-error"
-      category_name = "build-error/#{core_tap_name}"
+      category_name = "build-error"
+      data_source = core_tap_name
     when "core-install"
       category = "all-core-formulae-json --install"
-      category_name = "install/#{core_tap_name}"
+      category_name = "install"
+      data_source = core_tap_name
     when "core-install-on-request"
       category = "all-core-formulae-json --install-on-request"
-      category_name = "install-on-request/#{core_tap_name}"
+      category_name = "install-on-request"
+      data_source = core_tap_name
     when "core-cask-install"
       category = "all-core-formulae-json --cask-install"
-      category_name = "cask-install/homebrew-cask"
+      category_name = "cask-install"
+      data_source = "homebrew-cask"
     else
       category_name = category
     end
 
-    FileUtils.mkdir_p "#{analytics_data_path}/#{category_name}"
+    FileUtils.mkdir_p "#{analytics_data_path}/#{category_name}/#{data_source}"
+    FileUtils.mkdir_p "#{analytics_api_path}/#{category_name}/#{data_source}"
     %w[30 90 365].each do |days|
-      next if days != "30" && category_name == "build-error/#{core_tap_name}"
+      next if days != "30" && category_name == "build-error" && !data_source.nil?
 
       # The `--json` and `--all-core-formulae-json` flags are mutually
       # exclusive, but we need to explicitly set `--json` sometimes,
@@ -110,8 +117,18 @@ def generate_analytics_files(os)
       # `--all-core-formulae-json`.
       category_flags = category.include?("all-core-formulae-json") ? category : "json --#{category}"
 
+      path_suffix = File.join(category_name, data_source || "", "#{days}d.json")
       sh "brew formula-analytics #{formula_analytics_os_arg} --days-ago=#{days} --#{category_flags} " \
-        "> #{analytics_data_path}/#{category_name}/#{days}d.json"
+        "> #{analytics_data_path}/#{path_suffix}"
+      IO.write("#{analytics_api_path}/#{path_suffix}", <<~EOS
+        ---
+        layout: analytics_json
+        category: #{category_name}
+        #{data_source + ": true" if data_source}
+        ---
+        {{ content }}
+      EOS
+      )
     end
   end
 end
@@ -126,7 +143,7 @@ task :analytics, [:os] do |task, args|
 
   generate_analytics_files(args[:os])
 end
-CLOBBER.include FileList[%w[_data/analytics _data/analytics-linux]]
+CLOBBER.include FileList[%w[_data/analytics _data/analytics-linux api/analytics api/analytics-linux]]
 
 desc "Update API samples"
 task :api_samples do
